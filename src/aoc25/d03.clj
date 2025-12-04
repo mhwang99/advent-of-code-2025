@@ -10,10 +10,8 @@
     (fn [n l]
       (if (= n 1)
         (apply max l)
-        (let [l (vec l)
-              first-range (- (count l) (dec n))
-              mx (apply max (take first-range l))
-              ]
+        (let [first-range (- (count l) (dec n))
+              mx (apply max (take first-range l))]
           (->> (range first-range)
                (filter #(= (nth l %) mx))
                (mapv #(get-max (dec n) (drop (inc %) l)))

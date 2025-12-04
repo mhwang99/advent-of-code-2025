@@ -2,7 +2,6 @@
   (:require [clojure.string :as s]
             [aoc25.utils :refer :all]))
 
-
 (def in (get-line-chars))
 
 (defn get-all-next
@@ -17,7 +16,7 @@
                 (<= 0 y (dec ys)))))))
 
 (defn check-removable
-  [board [x y] xs ys]
+  [board x y xs ys]
   (and (= \@ (get-in board [x y]))
        (< (count
             (filter #(= \@ (get-in board %))
@@ -31,7 +30,7 @@
     (count
       (for [x (range xs)
             y (range ys)
-            :when (check-removable board [x y] xs ys)]
+            :when (check-removable board x y xs ys)]
         [x y]))))
 
 
@@ -43,7 +42,7 @@
            ret 0]
       (let [pts (for [x (range xs)
                       y (range ys)
-                      :when (check-removable board [x y] xs ys)]
+                      :when (check-removable board x y xs ys)]
                   [x y])
             n (count pts)]
         (if (= n 0)

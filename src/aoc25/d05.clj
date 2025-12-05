@@ -32,18 +32,14 @@
 
 (defn link-list
   [ll]
-  (loop [ll (sort ll)]
-    (let [new-ll (reduce
-                   (fn [ll l]
-                     (if (and (seq ll)
-                              (linked? (first ll) l))
-                       (conj (rest ll)
-                             (link (first ll) l))
-                       (conj ll l)))
-                   '() ll)]
-      (if (= (count ll) (count new-ll))
-        ll
-        (recur new-ll)))))
+  (reduce
+    (fn [ll l]
+      (if (and (seq ll)
+               (linked? (first ll) l))
+        (conj (rest ll)
+              (link (first ll) l))
+        (conj ll l)))
+    '() (sort ll)))
 
 (defn q2
   [{:keys [ranges]}]

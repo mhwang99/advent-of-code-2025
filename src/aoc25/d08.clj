@@ -12,55 +12,46 @@
 
 (defn get-all-distances
   [pts]
-  (loop [pts (sort pts)
+  (loop [[pt & pts] (sort pts)
          ret []]
-    (if (< (count pts) 2)
+    (if (empty? pts)
       (sort ret)
-      (let [[pt & npts] pts]
-        (recur npts
-               (into ret
-                     (map (fn [apt bpt]
-                            [(get-distance apt bpt) apt bpt])
-                          npts
-                          (repeat pt))))))))
+      (recur pts
+             (->> pts
+                  (map (fn [a b] [(get-distance a b) a b])
+                       (repeat pt))
+                  (into ret))))))
 
-(defn merge-group
-  [groups apt bpt]
-  (loop [ret []
-         ngrp #{}
-         groups groups]
-    (if (empty? groups)
-      (conj ret ngrp)
-      (let [[grp & groups] groups]
-        (if (or (grp apt) (grp bpt))
-          (recur ret (into ngrp grp) groups)
-          (recur (conj ret grp) ngrp groups))))))
+(defn merge-circuit
+  [cs & pts]
+  (loop [[c & cs] cs
+         ncs []
+         nc #{}]
+    (cond
+      (empty? c)   (conj ncs nc)
+      (some c pts) (recur cs ncs (into nc c))
+      :else        (recur cs (conj ncs c) nc))))
 
 (defn q1
   [pts n]
-  (loop [n n
-         diss (get-all-distances pts)
-         groups (mapv (fn [pt] #{pt}) pts)]
+  (loop [[d & ds] (get-all-distances pts)
+         cs (mapv hash-set pts)
+         n n]
     (if (= n 0)
-      (->> groups (map count) sort reverse (take 3) (apply *))
-      (let [[dis & ndiss] diss
-            [_ apt bpt] dis
-            ngroups (merge-group groups apt bpt)]
-        (recur (dec n)
-               ndiss
-               ngroups)))))
+      (->> cs (map count) sort reverse (take 3) (apply *))
+      (let [[_ a b] d
+            ncs (merge-circuit cs a b)]
+        (recur ds ncs (dec n))))))
 
 (defn q2
   [pts]
-  (loop [diss (get-all-distances pts)
-         groups (mapv (fn [pt] #{pt}) pts)]
-    (let [[dis & ndiss] diss
-          [_ apt bpt] dis
-          ngroups (merge-group groups apt bpt)]
-      (if (= 1 (count ngroups))
-        (* (first apt) (first bpt))
-        (recur ndiss
-               ngroups)))))
+  (loop [[d & ds] (get-all-distances pts)
+         cs (mapv hash-set pts)]
+    (let [[_ a b] d
+          ncs (merge-circuit cs a b)]
+      (if (= 1 (count ncs))
+        (* (first a) (first b))
+        (recur ds ncs)))))
 
 #_(q1 in 1000)
 #_(q2 in)
